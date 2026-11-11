@@ -1,4 +1,4 @@
-from docchat.chain import RagChat, source_label
+from backend.api.chain import RagChat, source_label
 
 SHOW_CHUNKS = True  # set to False to hide the retrieved text
 

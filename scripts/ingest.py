@@ -1,7 +1,7 @@
 import argparse
 
-from docchat.ingestion import ingest
-from docchat.retrieval import reset_collection
+from backend.ingestion.ingestion import ingest
+from backend.core.retrieval import reset_collection
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
