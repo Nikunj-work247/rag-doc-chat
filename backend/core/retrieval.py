@@ -53,5 +53,6 @@ def get_vectorstore() -> QdrantVectorStore:
     )
 
 
-def get_retriever():
-    return get_vectorstore().as_retriever(search_kwargs={"k": settings.top_k})
+def get_retriever(k: int | None = None):
+    top_k = k or settings.top_k
+    return get_vectorstore().as_retriever(search_kwargs={"k": top_k})

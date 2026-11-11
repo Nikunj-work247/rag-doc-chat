@@ -1,13 +1,19 @@
+# Secrets
 .env
-.venv/
-__pycache__/
-*.pyc
-data/raw/*
-data/vectorstore/*
-!data/raw/.gitkeep
-!data/vectorstore/.gitkeep
+
+# Virtual environment
 .venv/
 venv/
-.env
+
+# Python
 __pycache__/
 *.py[cod]
+*.egg-info/
+
+# Runtime data (keep folder structure via .gitkeep)
+data/raw/*
+data/vectorstore/*
+data/*.db
+data/chat_history/
+!data/raw/.gitkeep
+!data/vectorstore/.gitkeep

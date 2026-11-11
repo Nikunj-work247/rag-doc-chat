@@ -4,8 +4,8 @@ from pathlib import Path
 from langchain_community.document_loaders import PyPDFLoader, TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-from .config import settings
-from .retrieval import get_vectorstore
+from backend.core.config import settings
+from backend.core.retrieval import get_vectorstore
 
 
 def load_single_document(path: Path):
@@ -68,3 +68,4 @@ def ingest(folder: Path | None = None, batch_size: int = 32) -> int:
         store.add_documents(batch, ids=[chunk_id(c) for c in batch])
 
     return len(chunks)
+
