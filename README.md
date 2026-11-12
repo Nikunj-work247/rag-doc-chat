@@ -74,3 +74,39 @@ python scripts/run_api.py
 streamlit run frontend/app.py
 ```
 * **Web UI:** http://localhost:8501
+
+---
+
+## 🐳 Running with Docker
+
+### 1. Configure Environment
+Make sure `.env` exists and has your API key:
+```bash
+cp .env.example .env
+# Edit .env and set NVIDIA_API_KEY
+```
+
+### 2. Build and Start All Services
+```bash
+docker compose up --build -d
+```
+
+This starts:
+- **Qdrant Vector DB:** http://localhost:6333
+- **FastAPI Backend:** http://localhost:8000 (Swagger docs at `/docs`)
+- **Streamlit Frontend:** http://localhost:8501
+
+### 3. Check Logs & Status
+```bash
+# View container status and healthchecks
+docker compose ps
+
+# Follow logs
+docker compose logs -f
+```
+
+### 4. Stop Services
+```bash
+docker compose down
+```
+*(To also remove the persisted Qdrant volume, pass `-v`: `docker compose down -v`)*

@@ -1,0 +1,58 @@
+#!/bin/bash
+set -euxo pipefail
+exec > >(tee /var/log/user-data.log) 2>&1
+
+dnf install -y git python3.11 python3.11-pip
+
+useradd --system --home-dir /opt/app --shell /sbin/nologin app || true
+git clone --branch ${repo_branch} ${repo_url} /opt/app
+cd /opt/app
+python3.11 -m venv .venv
+.venv/bin/pip install --upgrade pip
+.venv/bin/pip install -r requirements.txt
+chown -R app:app /opt/app
+
+# secrets: SSM Parameter Store -> environment file
+: > /etc/app.env
+aws ssm get-parameters-by-path --path /${project}/ --with-decryption --region ${region} \
+  --query 'Parameters[*].[Name,Value]' --output text | while IFS=$'\t' read -r name value; do
+  echo "$(basename "$name")=$value" >> /etc/app.env
+done
+chmod 600 /etc/app.env
+
+cat > /etc/systemd/system/rag-backend.service <<'EOF'
+[Unit]
+Description=RAG backend (FastAPI)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=app
+WorkingDirectory=/opt/app
+EnvironmentFile=/etc/app.env
+Environment=PYTHONPATH=/opt/app/${python_path}
+ExecStart=/opt/app/.venv/bin/uvicorn ${backend_app} --host 127.0.0.1 --port 8000
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+cat > /etc/systemd/system/rag-frontend.service <<'EOF'
+[Unit]
+Description=RAG frontend (Streamlit)
+After=rag-backend.service
+
+[Service]
+User=app
+WorkingDirectory=/opt/app
+Environment=BACKEND_URL=http://127.0.0.1:8000/api
+ExecStart=/opt/app/.venv/bin/streamlit run ${frontend_file} --server.port 8501 --server.address 0.0.0.0 --server.headless true
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload
+systemctl enable --now rag-backend rag-frontend

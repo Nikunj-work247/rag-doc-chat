@@ -1,18 +1,26 @@
 pipeline {
     agent any
 
+    options {
+        timeout(time: 20, unit: 'MINUTES')
+    }
+
     stages {
-        stage('Show repo') {
+        stage('Check tools') {
             steps {
-                sh 'echo "Build number: $BUILD_NUMBER"'
-                sh 'git log -1 --oneline'
-                sh 'ls -la'
+                sh 'python3 --version'
             }
         }
 
-        stage('Check tools') {
+        stage('Create venv') {
             steps {
-                sh 'python3 --version || echo "python3 is NOT installed in this Jenkins container"'
+                sh 'python3 -m venv .venv'
+            }
+        }
+
+        stage('Install dependencies') {
+            steps {
+                sh '. .venv/bin/activate && pip install --upgrade pip && pip install -r requirements.txt'
             }
         }
     }

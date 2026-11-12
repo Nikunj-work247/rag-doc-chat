@@ -17,3 +17,7 @@ data/*.db
 data/chat_history/
 !data/raw/.gitkeep
 !data/vectorstore/.gitkeep
+infra/terraform/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
